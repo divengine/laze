@@ -2,6 +2,8 @@
 
 **laze** is a PHP library for defining lazy constants. Values are set as closures and only materialize upon first access, ensuring efficient and controlled initialization. Once a value is evaluated, it becomes immutable and cannot be redefined as a value, though it can be redefined as a closure until it's accessed.
 
+**Laze** might be an English word that suggests relaxation or laziness, but in this context, it’s actually an acronym derived from **lazy Evaluation**. This refers to a programming technique where the evaluation of an expression is delayed until its value is needed. With `laze` once the value is evaluated, it **becomes an immutable constant**. In other words, a value that, although evaluated with delay, cannot be modified after its initial evaluation. Thus, `laze` encapsulates the concept of deferred evaluation that results in definitive constancy, combining flexibility and robustness into one concept.
+
 ## Installation
 
 You can install **laze** using Composer:
@@ -31,9 +33,7 @@ To define a lazy constant, use the `laze::define` method. The value must be prov
 use divengine\laze;
 
 // Define a lazy constant
-laze::define('MY_CONSTANT', function() {
-    return computeExpensiveValue();
-});
+laze::define('MY_CONSTANT', fn() => computeExpensiveValue());
 ```
 
 ### Reading a Lazy Constant
@@ -49,10 +49,8 @@ $value = laze::read('MY_CONSTANT');
 ```php
 use divengine\laze;
 
-// Define a lazy constant
-laze::define('MY_CONSTANT', function() {
-    return rand(1, 100); // Simulate an expensive computation
-});
+// Define a lazy constant. Simulate an expensive computation
+laze::define('MY_CONSTANT', fn() => return rand(1, 100)); 
 
 // First access, the closure is evaluated
 $value = laze::read('MY_CONSTANT');
@@ -152,6 +150,56 @@ phpunit
 - In a normal (non-test) environment, `getGreeting()` will return `Hello, World!`, using the original definition.
 
 This approach allows you to test your application with different constant values without affecting the production code, providing a powerful way to manage test scenarios with `laze`.
+
+## Best Practices for Using Laze
+
+### 1. Naming Conventions
+
+When defining and reading constants with `laze`, it's recommended to define the name of each Lazy constant in a separate constant. This practice helps avoid hardcoding strings throughout your code and makes your constants easier to manage and update. For example:
+
+```php
+// Define the constant name separately:
+define('C_MAX_USERS', 'MAX_USERS');
+
+// Use it with Laze:
+Laze::define(C_MAX_USERS, function() {
+    return getMaxUsersFromConfig();
+});
+
+You can also use a more descriptive name:
+```
+
+```php
+// Define with a more descriptive name:
+define('C_MAX_USERS', 'global.constants.max_users');
+
+// Use it with Laze:
+Laze::define(C_MAX_USERS, function() {
+    return getMaxUsersFromConfig();
+});
+```
+
+By using separate constants for Lazy constant names, you enhance code clarity, maintainability, and reduce the risk of errors.
+
+### 2. Handling Non-Existent Constants
+
+If you attempt to read a constant with Laze that has not been defined, an exception will be thrown, ensuring strict constant management. This behavior is intentional to prevent undefined or incorrectly defined constants from causing errors in your application. Here’s how it works:
+
+```php
+
+try {
+    $maxUsers = Laze::read(C_MAX_USERS);
+} catch (\Exception $e) {
+    // Handle the undefined constant scenario
+    echo $e->getMessage();
+}
+```
+
+In this example, if `C_MAX_USERS` has not been defined using `laze::define`, an exception will be raised with a message like **"Undefined lazy constant: MAX_USERS"**. Always ensure that constants are properly defined before attempting to read them to avoid such exceptions.
+
+## Documentation
+
+For more detailed documentation and advanced topics, please refer to our official website at [divengine.org](https://divengine.org). There, you'll find comprehensive guides, examples, and further resources to help you make the most out of `laze`.
 
 ## License
 

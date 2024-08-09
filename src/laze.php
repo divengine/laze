@@ -7,7 +7,7 @@ namespace divengine;
  *
  * A PHP library for defining lazy constants. Values are set as closures 
  * and only materialize upon first access, ensuring efficient and controlled
- * initialization
+ * initialization.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,13 +83,12 @@ class laze
      * Read the value of a lazy constant, evaluating the closure if needed.
      * 
      * @param string $key
-     * @param mixed $default
      * @return mixed
      */
-    public static function read(string $key, mixed $default = null): mixed
+    public static function read(string $key): mixed
     {
         if (!self::defined($key)) {
-            return $default;
+            throw new \Exception("Undefined lazy constant: $key");
         }
 
 		$value = self::$store[$key];
