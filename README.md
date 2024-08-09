@@ -44,7 +44,7 @@ To access the value, use the Laze::read method. The closure will be evaluated on
 $value = laze::read('MY_CONSTANT');
 ```
 
-## Example
+## Basic example
 
 ```php
 use divengine\laze;
@@ -62,6 +62,96 @@ echo $value; // Outputs the evaluated value
 $value = laze::read('MY_CONSTANT');
 echo $value; // Outputs the same value as before
 ```
+
+## Using `laze` with PHPUnit
+
+`laze` can be particularly useful in testing environments where you need to redefine constants differently from their production values. This example demonstrates how to define a lazy constant in a standard PHP file and then override it during unit tests.
+
+### 1. Define a lazy constant in `index.php`
+
+In your `index.php` file, define a lazy constant using `laze::define` and create a function that uses this constant.
+
+```php
+use divengine\laze;
+
+require_once 'vendor/autoload.php';
+
+// Define a lazy constant
+laze::define('GREETING', fn() => 'Hello, World!');
+
+// Function that uses the lazy constant
+function getGreeting()
+{
+    return laze::read('GREETING');
+}
+```
+
+### 2. Redefine the Constant in PHPUnit's Bootstrap File
+
+Create a `bootstrap.php` file in your tests directory. This file will be loaded before any tests are executed, allowing you to redefine the constant `GREETING` for testing purposes.
+
+```php
+use divengine\laze;
+
+require_once __DIR__ . '/../index.php';
+
+// Redefine the constant `GREETING` only in the test context
+laze::define('GREETING', fn() => 'Hello, PHPUnit!');
+```
+
+### 3. Write Unit Tests to Verify Behavior
+
+In your tests/LazeTest.php, write tests to ensure that the constant behaves as expected both in normal and test contexts.
+
+```php
+use PHPUnit\Framework\TestCase;
+
+class LazeTest extends TestCase
+{
+    public function testGreeting()
+    {
+        // Verify that the function getGreeting returns the redefined constant
+        $this->assertEquals('Hello, PHPUnit!', getGreeting());
+    }
+
+    public function testOriginalGreeting()
+    {
+        // Check behavior without the PHPUnit bootstrap context
+        // Run this without the PHPUnit bootstrap to see the difference
+        $this->assertEquals('Hello, World!', getGreeting());
+    }
+}
+
+```
+
+### 4. Configure PHPUnit to Use the Bootstrap File
+
+Ensure that your phpunit.xml is configured to include the bootstrap file:
+
+```xml
+<phpunit bootstrap="tests/bootstrap.php">
+    <testsuites>
+        <testsuite name="Laze Test Suite">
+            <directory>./tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
+```
+
+### 5. Run the Tests
+
+You can run the tests using the following command:
+
+```bash
+phpunit
+```
+
+### Expected Outcome
+
+- In the test environment, `getGreeting()` will return `Hello, PHPUnit!`, as the constant `GREETING` has been redefined.
+- In a normal (non-test) environment, `getGreeting()` will return `Hello, World!`, using the original definition.
+
+This approach allows you to test your application with different constant values without affecting the production code, providing a powerful way to manage test scenarios with `laze`.
 
 ## License
 
