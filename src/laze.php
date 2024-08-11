@@ -2,6 +2,8 @@
 
 namespace divengine;
 
+use Closure;
+
 /**
  * [[]] Div PHP Laze
  *
@@ -43,6 +45,12 @@ class laze
      * @var array<string, mixed>
      */
     private static array $store = [];
+
+    /**
+     * Store for constraints.
+     * @var array<string, array<string, callable>>
+     */
+    private static array $constraints = [];
 
     /**
      * Get the version of the library.
@@ -95,9 +103,29 @@ class laze
 
         if (is_callable($value)) {
 			$value = $value();
+
+            foreach (self::$constraints as $constraint) {
+                $pass = $constraint[1]($key, $value);
+                if (!$pass) {
+                    throw new \Exception("Constraint '{$constraint[0]}' failed for lazy constant: $key");
+                }
+            }
+
             self::$store[$key] = $value;
         }
 
         return $value;
+    }
+
+    /**
+     * Define a constraint for a lazy constant.
+     * 
+     * @param string $name
+     * @param callable $checker
+     * @return void
+     */
+    public static function constraint($name, callable $checker): void
+    {
+        self::$constraints[] = [$name, $checker];
     }
 }
