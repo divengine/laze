@@ -61,97 +61,84 @@ $value = laze::read('MY_CONSTANT');
 echo $value; // Outputs the same value as before
 ```
 
-## Using `laze` with PHPUnit
+## Comprehensive example
 
-`laze` can be particularly useful in testing environments where you need to redefine values differently from their production values. This example demonstrates how to define a lazy value in a standard PHP file and then override it during unit tests.
+This example covers the full range of Laze's capabilities in a concise manner suitable for a README, showing how it can be applied in real-world scenarios.
 
-### 1. Define a lazy constant in `index.php`
-
-In your `index.php` file, define a lazy constant using `laze::define` and create a function that uses this constant.
+- Constraints: Ensures that APP_CONFIG implements the Configurable interface.
+- Closure Returning Closure: The DEFERRED key holds a closure that returns another closure, delaying the final result until it's needed.
+- Lazy Value with Object Instance: APP_CONFIG stores an instance of AppConfig, which is validated by the constraint.
+- Reusing define and read: FINAL_MESSAGE reads from both APP_CONFIG and DEFERRED, combining their values.
+- PHPUnit Test: Demonstrates how APP_CONFIG can be redefined for testing, using a mock object.
 
 ```php
-use divengine\laze;
 
-require_once 'vendor/autoload.php';
-
-// Define a lazy constant
-laze::define('GREETING', fn() => 'Hello, World!');
-
-// Function that uses the lazy constant
-function getGreeting()
-{
-    return laze::read('GREETING');
+interface Configurable {
+    public function configure(array $settings): void;
 }
-```
 
-### 2. Redefine the Constant in PHPUnit's Bootstrap File
+class AppConfig implements Configurable {
+    private array $settings;
 
-Create a `bootstrap.php` file in your tests directory. This file will be loaded before any tests are executed, allowing you to redefine the constant `GREETING` for testing purposes.
-
-```php
-use divengine\laze;
-
-require_once __DIR__ . '/../index.php';
-
-// Redefine the constant `GREETING` only in the test context
-laze::define('GREETING', fn() => 'Hello, PHPUnit!');
-```
-
-### 3. Write Unit Tests to Verify Behavior
-
-In your tests/LazeTest.php, write tests to ensure that the constant behaves as expected both in normal and test contexts.
-
-```php
-use PHPUnit\Framework\TestCase;
-
-class LazeTest extends TestCase
-{
-    public function testGreeting()
-    {
-        // Verify that the function getGreeting returns the redefined constant
-        $this->assertEquals('Hello, PHPUnit!', getGreeting());
+    public function configure(array $settings): void {
+        $this->settings = $settings;
     }
 
-    public function testOriginalGreeting()
-    {
-        // Check behavior without the PHPUnit bootstrap context
-        // Run this without the PHPUnit bootstrap to see the difference
-        $this->assertEquals('Hello, World!', getGreeting());
+    public function getSetting(string $key) {
+        return $this->settings[$key] ?? null;
     }
 }
 
+// 1. Add a constraint to ensure a value implements the Configurable interface
+laze::constraint(
+    name: 'Must implement Configurable interface',
+    fn($key, $value) => $key == 'APP_CONFIG' ? $value instanceof Configurable : true
+);
+
+// 2. Define a lazy value that returns a closure
+laze::define('DEFERRED', function() {
+    return function() {
+        return "Deferred Result";
+    };
+});
+
+// 3. Define a lazy value with an object instance
+laze::define('APP_CONFIG', function() {
+    $config = new AppConfig();
+    $config->configure([
+        'timezone' => 'UTC',
+        'locale' => 'en_US'
+    ]);
+    return $config;
+});
+
+// 4. Reuse define and read within each other
+laze::define('FINAL_MESSAGE', function() {
+    $config = laze::read('APP_CONFIG');
+    $timezone = $config->getSetting('timezone');
+    return laze::read('DEFERRED')() . " in timezone $timezone";
+});
+
+$finalMessage = laze::read('FINAL_MESSAGE');
+echo $finalMessage; // Outputs: "Deferred Result in timezone UTC"
+
+// 5. PHPUnit Test - Redefining a value
+class LazeTest extends \PHPUnit\Framework\TestCase {
+    public function testAppConfigCanBeMocked() {
+        laze::define('APP_CONFIG', function() {
+            $mockConfig = $this->createMock(Configurable::class);
+            $mockConfig->method('getSetting')->willReturn('mocked_timezone');
+            return $mockConfig;
+        });
+
+        $message = laze::read('FINAL_MESSAGE');
+        $this->assertEquals("Deferred Result in timezone mocked_timezone", $message);
+    }
+}
+
 ```
 
-### 4. Configure PHPUnit to Use the Bootstrap File
-
-Ensure that your phpunit.xml is configured to include the bootstrap file:
-
-```xml
-<phpunit bootstrap="tests/bootstrap.php">
-    <testsuites>
-        <testsuite name="Laze Test Suite">
-            <directory>./tests</directory>
-        </testsuite>
-    </testsuites>
-</phpunit>
-```
-
-### 5. Run the Tests
-
-You can run the tests using the following command:
-
-```bash
-phpunit
-```
-
-### Expected Outcome
-
-- In the test environment, `getGreeting()` will return `Hello, PHPUnit!`, as the constant `GREETING` has been redefined.
-- In a normal (non-test) environment, `getGreeting()` will return `Hello, World!`, using the original definition.
-
-This approach allows you to test your application with different constant values without affecting the production code, providing a powerful way to manage test scenarios with `laze`.
-
-## Utility of this package
+## Utility of this library
 
 - **Lazy Evaluation**: Optimizes resource usage by deferring value evaluation until needed, improving performance and load times.
 
