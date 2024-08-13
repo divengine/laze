@@ -1,6 +1,6 @@
 # Div PHP Laze
 
-**laze** is a PHP library designed for defining _lazy evaluation_. Values are set as closures and only materialize upon first access, ensuring efficient and controlled initialization. Once a value is evaluated, it becomes immutable and cannot be redefined as a different value. However, it can be redefined as a `closure` until it’s accessed, at which point it transforms into a non-closure value.
+**laze** is a PHP library designed for defining _lazy evaluation_. Values are set as closures and only materialize upon first access, ensuring efficient and controlled initialization. Once a closure function is evaluated, it becomes immutable and cannot be redefined as a different value. However, it can be redefined as a `closure` until it’s accessed, at which point it transforms into a non-closure value.
 
 **laze** might be an English word that suggests relaxation or laziness, but in this context, it’s actually an acronym derived from **Lazy Evaluation**. This refers to a programming technique where the evaluation of an expression is delayed until its value is needed. With **laze**, once the value is evaluated, it **becomes an immutable value**. In other words, a value that, although evaluated with delay, cannot be modified after its initial evaluation. Thus, **laze** encapsulates the concept of deferred evaluation that results in a definitive value, combining flexibility and robustness into one concept.
 
@@ -150,6 +150,30 @@ phpunit
 - In a normal (non-test) environment, `getGreeting()` will return `Hello, World!`, using the original definition.
 
 This approach allows you to test your application with different constant values without affecting the production code, providing a powerful way to manage test scenarios with `laze`.
+
+## Utility of this package
+
+- **Lazy Evaluation**: Optimizes resource usage by deferring value evaluation until needed, improving performance and load times.
+
+- **Immutability**: Ensures values remain unchanged once evaluated, useful in concurrent environments and functional programming.
+
+- **Dependency Injection**: Supports lazy initialization of dependencies, improving modularity and testing (e.g., mocking services).
+
+- **Configuration Management**: Manages environment-specific or conditional configurations, evaluated only when required.
+
+- **Caching**: Implements deferred caching, storing results only when needed, and supports multi-level caching with constraints.
+
+- **Event-Driven Programming**: Facilitates deferred event handling, triggering actions only under certain conditions or upon request.
+
+- **Testing**: Validates values with constraints in unit tests, and simulates complex environments with lazy-loaded dependencies.
+
+- **Security**: Enforces data validation and security constraints before values are used, reducing risks.
+
+- **Declarative Programming**: Supports declarative configurations that are evaluated on demand.
+
+- **Domain-Specific Languages (DSLs)**: Builds DSLs with declarative value definitions that execute in specific contexts.
+
+- **CI/CD**: Defines dynamic configurations or scripts for CI/CD pipelines, evaluated conditionally based on environment state.
 
 ## License
 
