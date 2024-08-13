@@ -3,7 +3,15 @@
 	"license": "GPL-3.0-or-later",
 	"description": "Div PHP Laze",
 	"keywords": [
-	  "lazy constants"
+		"lazy evaluation",
+		"immutable values",
+		"lazy loading",
+		"constraints",
+		"closures",
+		"constants",
+		"object-oriented",
+		"dependency injection",
+		"lazy initialization"
 	],
 	"homepage": "https://divengine.org",
 	"version": "1.0.0",
@@ -12,7 +20,7 @@
 		"name": "Rafa Rodriguez",
 		"email": "rafageist@divengine.com",
 		"homepage": "https://rafageist.com",
-		"role": "Founder"
+		"role": "Author"
 	  }
 	],
 	"require": {
