@@ -9,7 +9,7 @@ use Closure;
 
 class BasicTest extends TestCase
 {
-	public function testScalarConstant(): void
+	public function testScalarImmutable(): void
 	{
 		laze::define('FOO', fn() => 42);
 
@@ -88,7 +88,7 @@ class BasicTest extends TestCase
 		laze::define('QUUX', fn() => 42);
 
 		$this->expectException(\Exception::class);
-		$this->expectExceptionMessage("Constraint 'Must be a string' failed for lazy constant: QUUX");
+		$this->expectExceptionMessage("Constraint 'Must be a string' failed for lazy immutable value: QUUX");
 
 		laze::read('QUUX');
 	}
