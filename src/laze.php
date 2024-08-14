@@ -7,7 +7,7 @@ use Closure;
 /**
  * [[]] Div PHP Laze
  *
- * A PHP library for defining lazy inmutable values. Values are set as closures 
+ * A PHP library for defining lazy immutable values. Values are set as closures 
  * and only materialize upon first access, ensuring efficient and controlled
  * initialization.
  *
@@ -26,7 +26,6 @@ use Closure;
  *
  * @package divengine/laze
  * @author  Rafa Rodriguez @rafageist [https://rafageist.com]
- * @version 1.1.0
  *
  * @link    https://divengine.org
  * @link    https://github.com/divengine/div
@@ -38,7 +37,7 @@ class laze
      * Version of the library.
      * @var string
      */
-    private static string $__version = '1.1.0'; 
+    private static string $__version = '1.1.1'; 
 	
     /**
      * Store for lazy immutable values.
