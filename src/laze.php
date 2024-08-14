@@ -26,7 +26,7 @@ use Closure;
  *
  * @package divengine/laze
  * @author  Rafa Rodriguez @rafageist [https://rafageist.com]
- * @version 1.0.0
+ * @version 1.1.0
  *
  * @link    https://divengine.org
  * @link    https://github.com/divengine/div
@@ -38,7 +38,7 @@ class laze
      * Version of the library.
      * @var string
      */
-    private static string $__version = '1.0.0'; 
+    private static string $__version = '1.1.0'; 
 	
     /**
      * Store for lazy constants.
@@ -48,9 +48,15 @@ class laze
 
     /**
      * Store for constraints.
-     * @var array<string, array<string, callable>>
+     * @var array<int, array{0: string, 1: callable}>
      */
     private static array $constraints = [];
+
+    /**
+     * Map of evaluated lazy constants.
+     * @var array<bool>
+     */
+    private static array $evaluated = [];
 
     /**
      * Get the version of the library.
@@ -60,20 +66,6 @@ class laze
     public static function getVersion()
     {
         return self::$__version;
-    }
-
-    /**
-     * Define a lazy constant as a closure.
-     * 
-     * @param string $key
-     * @param callable $value
-     * @return void
-     */
-    public static function define(string $key, callable $value): void
-    {
-        if (!self::defined($key) || is_callable(self::$store[$key])) {
-            self::$store[$key] = $value;
-        }
     }
 
     /**
@@ -88,33 +80,16 @@ class laze
     }
 
     /**
-     * Read the value of a lazy constant, evaluating the closure if needed.
+     * Check if a lazy constant has been evaluated.
      * 
      * @param string $key
-     * @return mixed
+     * @return bool
      */
-    public static function read(string $key): mixed
+    public static function evaluated(string $key): bool
     {
-        if (!self::defined($key)) {
-            throw new \Exception("Undefined lazy constant: $key");
-        }
+        self::defined($key) or throw new \Exception("Undefined lazy constant: $key");
 
-		$value = self::$store[$key];
-
-        if (is_callable($value)) {
-			$value = $value();
-
-            foreach (self::$constraints as $constraint) {
-                $pass = $constraint[1]($key, $value);
-                if (!$pass) {
-                    throw new \Exception("Constraint '{$constraint[0]}' failed for lazy constant: $key");
-                }
-            }
-
-            self::$store[$key] = $value;
-        }
-
-        return $value;
+        return self::$evaluated[$key];
     }
 
     /**
@@ -127,5 +102,45 @@ class laze
     public static function constraint($name, callable $checker): void
     {
         self::$constraints[] = [$name, $checker];
+    }
+
+    /**
+     * Define a lazy constant as a closure.
+     * 
+     * @param string $key
+     * @param callable $value
+     * @return void
+     */
+    public static function define(string $key, callable $value): void
+    {
+        if (!self::defined($key) || !self::evaluated($key)) {
+            self::$store[$key] = $value;
+            self::$evaluated[$key] = false;
+        }
+    }
+
+    /**
+     * Read the value of a lazy constant, evaluating the closure if needed.
+     * 
+     * @param string $key
+     * @return mixed
+     */
+    public static function read(string $key): mixed
+    {
+        if (!self::evaluated($key) && is_callable(self::$store[$key])) {
+			$value = self::$store[$key]();
+
+            foreach (self::$constraints as $constraint) {
+                $pass = $constraint[1]($key, $value);
+                if (!$pass) {
+                    throw new \Exception("Constraint '{$constraint[0]}' failed for lazy constant: $key");
+                }
+            }
+
+            self::$store[$key] = $value;
+            self::$evaluated[$key] = true;
+        }
+
+        return self::$store[$key];
     }
 }

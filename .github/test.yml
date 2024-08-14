@@ -1,0 +1,36 @@
+name: Run the Unit Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup PHP with Composer
+      uses: php-actions/composer@v6
+      with:
+        php_version: 8.3
+        php_extensions: zip
+        working_dir: core4
+
+    - name: PHPStan static analysis
+      run: |
+        cd core4
+        vendor/bin/phpstan --memory-limit=512M analyse
+
+    - name: Install PHP dependencies
+      uses: ConorMacBride/install-package@v1
+      with:
+        apt: webp
+
+    - name: Run PHPUnit tests
+      run: |
+        cd core4
+        vendor/bin/phpunit
