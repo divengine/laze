@@ -7,7 +7,7 @@ use Closure;
 /**
  * [[]] Div PHP Laze
  *
- * A PHP library for defining lazy constants. Values are set as closures 
+ * A PHP library for defining lazy inmutable values. Values are set as closures 
  * and only materialize upon first access, ensuring efficient and controlled
  * initialization.
  *
@@ -41,7 +41,7 @@ class laze
     private static string $__version = '1.1.0'; 
 	
     /**
-     * Store for lazy constants.
+     * Store for lazy immutable values.
      * @var array<string, mixed>
      */
     private static array $store = [];
@@ -53,7 +53,7 @@ class laze
     private static array $constraints = [];
 
     /**
-     * Map of evaluated lazy constants.
+     * Map of evaluated lazy immutable values.
      * @var array<bool>
      */
     private static array $evaluated = [];
@@ -69,7 +69,7 @@ class laze
     }
 
     /**
-     * Check if a lazy constant is defined.
+     * Check if a lazy immutable value is defined.
      * 
      * @param string $key
      * @return bool
@@ -80,20 +80,20 @@ class laze
     }
 
     /**
-     * Check if a lazy constant has been evaluated.
+     * Check if a lazy immutable value has been evaluated.
      * 
      * @param string $key
      * @return bool
      */
     public static function evaluated(string $key): bool
     {
-        self::defined($key) or throw new \Exception("Undefined lazy constant: $key");
+        self::defined($key) or throw new \Exception("Undefined lazy immutable value: $key");
 
         return self::$evaluated[$key];
     }
 
     /**
-     * Define a constraint for a lazy constant.
+     * Define a constraint for a lazy immutable value.
      * 
      * @param string $name
      * @param callable $checker
@@ -105,7 +105,7 @@ class laze
     }
 
     /**
-     * Define a lazy constant as a closure.
+     * Define a lazy immutable value as a closure.
      * 
      * @param string $key
      * @param callable $value
@@ -120,7 +120,7 @@ class laze
     }
 
     /**
-     * Read the value of a lazy constant, evaluating the closure if needed.
+     * Read the value of a lazy immutable value, evaluating the closure if needed.
      * 
      * @param string $key
      * @return mixed
@@ -133,7 +133,7 @@ class laze
             foreach (self::$constraints as $constraint) {
                 $pass = $constraint[1]($key, $value);
                 if (!$pass) {
-                    throw new \Exception("Constraint '{$constraint[0]}' failed for lazy constant: $key");
+                    throw new \Exception("Constraint '{$constraint[0]}' failed for lazy immutable value: $key");
                 }
             }
 
