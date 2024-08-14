@@ -66,9 +66,9 @@ echo $value; // Outputs the same value as before
 This example covers the full range of Laze's capabilities in a concise manner suitable for a README, showing how it can be applied in real-world scenarios.
 
 - Constraints: Ensures that APP_CONFIG implements the Configurable interface.
-- Closure Returning Closure: The DEFERRED key holds a closure that returns another closure, delaying the final result until it's needed.
+- Closure Returning Closure: MY_FUNCTION key holds a closure that returns another closure
 - Lazy Value with Object Instance: APP_CONFIG stores an instance of AppConfig, which is validated by the constraint.
-- Reusing define and read: FINAL_MESSAGE reads from both APP_CONFIG and DEFERRED, combining their values.
+- Reusing define and read: FINAL_MESSAGE reads from both APP_CONFIG and MY_FUNCTION, combining their values.
 - PHPUnit Test: Demonstrates how APP_CONFIG can be redefined for testing, using a mock object.
 
 ```php
@@ -96,9 +96,9 @@ laze::constraint(
 );
 
 // 2. Define a lazy value that returns a closure
-laze::define('DEFERRED', function() {
+laze::define('MY_FUNCTION', function() {
     return function() {
-        return "Deferred Result";
+        return "Function Result";
     };
 });
 
@@ -116,15 +116,24 @@ laze::define('APP_CONFIG', function() {
 laze::define('FINAL_MESSAGE', function() {
     $config = laze::read('APP_CONFIG');
     $timezone = $config->getSetting('timezone');
-    return laze::read('DEFERRED')() . " in timezone $timezone";
+    return laze::read('MY_FUNCTION')() . " in timezone $timezone";
 });
 
 $finalMessage = laze::read('FINAL_MESSAGE');
-echo $finalMessage; // Outputs: "Deferred Result in timezone UTC"
+echo $finalMessage; // Outputs: "Function Result in timezone UTC"
 
 // 5. PHPUnit Test - Redefining a value
 class LazeTest extends \PHPUnit\Framework\TestCase {
     public function testAppConfigCanBeMocked() {
+
+        // mock function
+        laze::define('MY_FUNCTION', function() {
+            return function() {
+                return "Mocked Result";
+            };
+        });
+
+        // mock object
         laze::define('APP_CONFIG', function() {
             $mockConfig = $this->createMock(Configurable::class);
             $mockConfig->method('getSetting')->willReturn('mocked_timezone');
@@ -132,7 +141,7 @@ class LazeTest extends \PHPUnit\Framework\TestCase {
         });
 
         $message = laze::read('FINAL_MESSAGE');
-        $this->assertEquals("Deferred Result in timezone mocked_timezone", $message);
+        $this->assertEquals("Mocked Result in timezone mocked_timezone", $message);
     }
 }
 
