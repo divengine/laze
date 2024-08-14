@@ -7,7 +7,7 @@ on:
     types: [opened, edited, reopened, synchronize]
   workflow_dispatch:
 jobs:
-  test:
+  static-and-test:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
