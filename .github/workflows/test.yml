@@ -24,4 +24,4 @@ jobs:
 
     - name: Run PHPUnit tests
       run: |
-        vendor/bin/phpunit
+        vendor/bin/phpunit --process-isolation

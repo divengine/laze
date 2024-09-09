@@ -137,6 +137,41 @@ class LazeTest extends \PHPUnit\Framework\TestCase {
 
 ```
 
+## How to reset Laze during testing
+
+If you need to reset Laze during testing, you have two options:
+
+1. Using reflection to reset the internal state of Laze.
+
+    ```php
+    class LazeTest extends \PHPUnit\Framework\TestCase {
+
+        public $lazeBackup;
+
+        public function setUp(): void {
+            parent::setUp();
+            $reflection = new ReflectionClass(laze::class);
+            $property = $reflection->getProperty('store');
+            $property->setAccessible(true);
+            $this->lazeBackup = $property->getValue();
+        }
+
+        public function tearDown(): void {
+            $reflection = new ReflectionClass(laze::class);
+            $property = $reflection->getProperty('store');
+            $property->setAccessible(true);
+            $property->setValue($this->lazeBackup);
+            parent::tearDown();
+        }
+    }
+    ```
+
+2. If you are using `phpunit`, then use it with the parameter `--process-isolation` to run each test in a separate process.
+
+    ```bash
+    vendor/bin/phpunit --process-isolation
+    ```
+
 ## Utility of this library
 
 - **Lazy Evaluation**: Optimizes resource usage by deferring value evaluation until needed, improving performance and load times.
