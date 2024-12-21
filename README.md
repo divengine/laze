@@ -1,6 +1,6 @@
 # Div PHP Laze
 
-**laze** is a PHP library designed for defining _lazy evaluation_. Values are set as closures and only materialize upon first access, ensuring efficient and controlled initialization. Once a closure function is evaluated, it becomes immutable and cannot be redefined as a different value. However, it can be redefined as a `closure` until it’s accessed, at which point it transforms into a non-closure value.
+**laze** is a PHP library designed for defining [lazy evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation). Values are set as closures and only materialize upon first access, ensuring efficient and controlled initialization. Once a closure function is evaluated, it becomes immutable and cannot be redefined as a different value. However, it can be redefined as a `closure` until it’s accessed, at which point it transforms into a non-closure value.
 
 **laze** might be an English word that suggests relaxation or laziness, but in this context, it’s actually an acronym derived from **Lazy Evaluation**. This refers to a programming technique where the evaluation of an expression is delayed until its value is needed. With **laze**, once the value is evaluated, it **becomes an immutable value**. In other words, a value that, although evaluated with delay, cannot be modified after its initial evaluation. Thus, **laze** encapsulates the concept of deferred evaluation that results in a definitive value, combining flexibility and robustness into one concept.
 
