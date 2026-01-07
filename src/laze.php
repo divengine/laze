@@ -2,8 +2,6 @@
 
 namespace divengine;
 
-use Closure;
-
 /**
  * [[]] Div PHP Laze
  *
