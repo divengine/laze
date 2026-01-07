@@ -2,6 +2,8 @@
 
 [![Latest Stable Version](https://poser.pugx.org/divengine/laze/v)](https://packagist.org/packages/divengine/laze) [![Total Downloads](https://poser.pugx.org/divengine/laze/downloads)](https://packagist.org/packages/divengine/laze) [![Latest Unstable Version](https://poser.pugx.org/divengine/laze/v/unstable)](https://packagist.org/packages/divengine/laze) [![License](https://poser.pugx.org/divengine/laze/license)](https://packagist.org/packages/divengine/laze) [![PHP Version Require](https://poser.pugx.org/divengine/laze/require/php)](https://packagist.org/packages/divengine/laze)
 
+**laze** is a PHP library designed for defining [lazy evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation). Values are set as closures and only materialize upon first access, ensuring efficient and controlled initialization. Once a closure function is evaluated, it becomes immutable and cannot be redefined as a different value. However, it can be redefined as a `closure` until it’s accessed, at which point it transforms into a non-closure value.
+
 Laze provides lazy immutable values for PHP. You define a key with a closure,
 and the value is computed on first read and then cached.
 
